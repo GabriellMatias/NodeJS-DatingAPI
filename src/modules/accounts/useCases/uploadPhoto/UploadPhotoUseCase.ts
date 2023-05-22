@@ -1,25 +1,17 @@
 import { MulterFile } from 'multer';
-import UserModel, { IImage } from "@models/user";
+import UserModel from "@models/user";
 
 interface IRequest {
-  file: MulterFile;
+  imageUrl: string;
   id: string;
 }
 
 export class UploadPhotoUseCase {
-  async execute({ file, id }: IRequest): Promise<void> {
-    const imageBuffer = file.buffer;
-    const contentType = file.mimetype;
-
-    const image = {
-      name: file.originalname,
-      data: imageBuffer,
-      contentType: contentType,
-    };
+  async execute({ imageUrl, id }: IRequest): Promise<void> {
 
     await UserModel.findByIdAndUpdate(id, {
       $push: {
-        photoProfile: image
+        photoProfile: imageUrl
       }
     });
   }

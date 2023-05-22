@@ -1,11 +1,6 @@
 import { Date, model, Schema } from "mongoose";
 
 
-export interface IImage extends Document {
-  name: string;
-  data: Buffer;
-  contentType: string;
-}
 
 export interface IMinAndMaxPreference {
   min: number;
@@ -19,14 +14,10 @@ export interface IUser {
   cellphone: string;
   dateBirth: string;
   age: number;
-  password: string;
   googleId: string;
 
   name: string;
-  city: string;
-  state: string;
-  country: string;
-  photoProfile: IImage[],
+  photoProfile: [string],
   location: {
     type: 'Point';
     coordinates: [number, number];
@@ -45,24 +36,13 @@ const userSchema = new Schema<IUser>({
   email: { type: String, required: true },
   cellphone: { type: String, required: true },
   dateBirth: { type: String, required: true },
-  age: { type: Number },
-  password: { type: String, required: true },
+  age: { type: Number, required: true },
   googleId: { type: String },
   
   name: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  country: { type: String, required: true },
   sex: { type: String, required: true },
   sexPreference: { type: String, required: true },
-  photoProfile: {
-    type: [{
-      name: String,
-      data: Buffer,
-      contentType: String,
-    }],
-    default: [],
-  },
+  photoProfile: { type: [String], default: [] },
   location: {
     type: {
       type: String,

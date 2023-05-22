@@ -2,9 +2,9 @@ import { AppError } from "@shared/errors/AppError";
 import { sign } from "jsonwebtoken";
 import UserModel from "@models/user";
 import auth from "@config/auth";
-import { hash } from "bcryptjs";
 import { inject, injectable } from "tsyringe";
 import { IDateProvider } from "@shared/container/providers/DateProvider/IDateProvider";
+import { ObjectId } from "mongoose";
 
 interface MinAndMaxPreference {
   min: number;
@@ -15,13 +15,10 @@ interface IRequest {
   email: string;
   cellphone: string;
   dateBirth: string;
-  password: string;
+  age: number;
   name: string;
-  city: string;
-  state: string;
-  country: string;
   location: {
-    type: 'Point';
+    type: string;
     coordinates: [number, number];
   };
   sex: string;
@@ -33,6 +30,7 @@ interface IRequest {
 }
 
 interface IResponse {
+  id: string;
   result: {
     name: string;
     email: string;
@@ -43,19 +41,16 @@ interface IResponse {
 @injectable()
 class CreateUserUseCase {
   constructor(
-    @inject('DayjsDateProvider')
-    private dateProvider: IDateProvider,
-  ) { }
+    @inject("DayjsDateProvider")
+    private dateProvider: IDateProvider
+  ) {}
 
   async execute({
     email,
     cellphone,
     dateBirth,
-    password,
+    age,
     name,
-    city,
-    state,
-    country,
     location,
     settings,
     sex,
@@ -70,12 +65,8 @@ class CreateUserUseCase {
       email,
       cellphone,
       dateBirth: this.dateProvider.convertToUTC(new Date(dateBirth)),
-      age: this.dateProvider.compareReturnAge(dateBirth),
-      password: await hash(password, 12),
+      age,
       name,
-      city,
-      state,
-      country,
       location,
       sex,
       sexPreference,
@@ -86,6 +77,7 @@ class CreateUserUseCase {
 
     const tokenAndUserReturn: IResponse = {
       token: token,
+      id:result._id.toString(),
       result: { name: result.name, email: result.email },
     };
 

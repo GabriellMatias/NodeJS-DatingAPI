@@ -6,7 +6,8 @@ interface MinAndMaxPreference {
 }
 
 interface IRequest {
-  coordinate: string;
+  coordinate: number[];
+  sex: string;
   sexPreference: string;
   settings: {
     agePreference: MinAndMaxPreference;
@@ -18,13 +19,18 @@ interface IRequest {
 export class FindUsersUseCase {
   async execute({
     coordinate,
+    sex,
     sexPreference,
     settings,
   }: IRequest): Promise<any> {
     const { min: minAge, max: maxAge } = settings.agePreference;
     const { min: minDistance, max: maxDistance } = settings.distancePreference;
+    const latitude = coordinate[0];
+    const longitude = coordinate[1];
 
-    const [latitude, longitude] = coordinate.split(',').map(parseFloat);
+    console.log(latitude)
+    console.log(longitude)
+    
 
     const users = await UserModel.aggregate([
       {
@@ -42,7 +48,8 @@ export class FindUsersUseCase {
       {
         $match: {
           age: { $gte: minAge, $lte: maxAge },
-          sex: sexPreference
+          sex: sexPreference,
+          sexPreference: sex, 
         }
       },
       {

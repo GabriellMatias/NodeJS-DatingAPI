@@ -1,6 +1,17 @@
 import { Request, Response } from 'express';
-import { MulterFile } from 'multer';
+import { container } from 'tsyringe';
+import { UploadPhotoUseCase } from './UploadPhotoUseCase';
 
-export interface ICustomRequest extends Request {
-  file: MulterFile;
+
+class UploadImageUrlUserController {
+    async handle(request: Request, response: Response): Promise<Response> {
+
+      const uploadImageUrlUserController = container.resolve(UploadPhotoUseCase);
+
+      const result = await uploadImageUrlUserController.execute(request.body);
+
+      return response.json(result);
+    }
 }
+
+export { UploadImageUrlUserController };

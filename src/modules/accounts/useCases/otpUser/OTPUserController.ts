@@ -9,11 +9,7 @@ class OTPUserController {
 
       const oTPUserController = container.resolve(OTPUserUseCase);
 
-      const otp = await oTPUserController.execute(
-        {
-          cellphone: cellphone as string,
-        }
-      );
+      const otp = await oTPUserController.execute({cellphone: cellphone as string,});
 
       return response.json(otp);
     }

@@ -1,4 +1,4 @@
-import UserModal, { IImage } from '@models/user';
+import UserModal from '@models/user';
 import { IDateProvider } from '@shared/container/providers/DateProvider/IDateProvider';
 import { AppError } from '@shared/errors/AppError';
 import fs from 'fs';
@@ -15,10 +15,7 @@ interface IResponse {
   dateBirth: string;
   age: number;
   name: string;
-  city: string;
-  state: string;
-  country: string;
-  photoProfile: IImage[],
+  photoProfile: [string],
   location: Object;
   sex: string;
   sexPreference: string;
@@ -29,7 +26,7 @@ interface IResponse {
 }
 
 interface IRequest {
-  email: string,
+  id: string,
 }
 
 @injectable()
@@ -40,8 +37,8 @@ class ProfileUserUseCase {
     private dateProvider: IDateProvider,
    ) { }
 
-   async execute({ email }: IRequest): Promise<IResponse> {
-      const user = await UserModal.findOne({ email });
+   async execute({ id }: IRequest): Promise<IResponse> {
+      const user = await UserModal.findById(id);
       if (!user) throw new AppError("user does not exist", 404);
 
       if(user.age != this.dateProvider.compareReturnAge(user.dateBirth)){
@@ -56,9 +53,6 @@ class ProfileUserUseCase {
         cellphone: user.cellphone,
         dateBirth: user.dateBirth,
         age: user.age,
-        city: user.city,
-        state: user.state,
-        country: user.country,
         photoProfile: user.photoProfile,
         location: user.location,
         sex: user.sex,
