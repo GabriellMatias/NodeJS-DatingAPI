@@ -9,6 +9,7 @@ interface IRequest {
 interface IResponse {
   otp: number;
   success: boolean;
+  userExists: boolean;
   sid: number;
 }
 
@@ -20,12 +21,15 @@ class OTPUserUseCase {
   async execute({
     cellphone,
   }: IRequest): Promise<IResponse> {
+    let userExists = false;
     let success = false;
     let sid = 0;
 
     const user = await UserModel.findOne({ cellphone });
 
-    if (user) throw new AppError("user exist", 409);
+    if (user) {
+      userExists = true;
+    }
     
     const otp = Math.floor(Math.random() * (9999 - 1000 + 1)) + 1000;
     
@@ -46,6 +50,7 @@ class OTPUserUseCase {
     return {
       otp,
       success,
+      userExists,
       sid
     };
   }

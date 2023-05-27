@@ -5,41 +5,26 @@ import UserModel from '../../../../models/user'
 import auth from '@config/auth';
 import { ObjectId } from 'mongoose';
 interface IRequest {
-   email: string;
-   password: string;
+  cellphone: string;
 }
 
 interface IResponse {
-   result: {
-      id: any;
-      name: string;
-      email: string;
-   };
-   token: string;
+  id: string;
 }
 
 class AuthenticateUserUseCase {
-   async execute({ email, password }: IRequest): Promise<IResponse> {
+   async execute({ cellphone }: IRequest): Promise<IResponse> {
+    console.log(cellphone);
 
-      const user = await UserModel.findOne({ email });
-      const {
-         expires_in_token,
-         secret_token,
-      } = auth;
+      const user = await UserModel.findOne({ cellphone });
 
       if (!user) throw new AppError("user doesn't exist", 404);
 
-      const isPasswordCorrect = await compare(password, user.password);
-      if (!isPasswordCorrect) throw new AppError("invalid credentials", 400);
-
-      const token = sign({}, secret_token, { expiresIn: expires_in_token });
-
-      const tokenAndUserReturn: IResponse = {
-         token: token,
-         result: { name: user.name, email: user.email, id: user._id }
+      const userR: IResponse = {
+        id: user._id.toString(),
       }
 
-      return tokenAndUserReturn
+      return userR
    }
 }
 

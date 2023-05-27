@@ -1,7 +1,5 @@
 import { Date, model, Schema } from "mongoose";
 
-
-
 export interface IMinAndMaxPreference {
   min: number;
   max: number;
@@ -17,6 +15,7 @@ export interface IUser {
   googleId: string;
 
   name: string;
+  username: string;
   photoProfile: [string],
   location: {
     type: 'Point';
@@ -28,6 +27,10 @@ export interface IUser {
     agePreference: IMinAndMaxPreference;
     distancePreference: IMinAndMaxPreference;
   };
+  likeds: [Schema.Types.ObjectId],
+  dislikeds: [Schema.Types.ObjectId],
+  superlikeds: [Schema.Types.ObjectId],
+  matches: [Schema.Types.ObjectId],
 }
 
 const userSchema = new Schema<IUser>({
@@ -40,6 +43,7 @@ const userSchema = new Schema<IUser>({
   googleId: { type: String },
   
   name: { type: String, required: true },
+  username: { type: String },
   sex: { type: String, required: true },
   sexPreference: { type: String, required: true },
   photoProfile: { type: [String], default: [] },
@@ -64,6 +68,10 @@ const userSchema = new Schema<IUser>({
       max: { type: Number, default: 100 },
     },
   },
+  likeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  dislikeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  superlikeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  matches: [{ type: Schema.Types.ObjectId, ref: "User" }],
 }, {
   timestamps: true,
 });

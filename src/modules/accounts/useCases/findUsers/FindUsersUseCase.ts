@@ -28,10 +28,6 @@ export class FindUsersUseCase {
     const latitude = coordinate[0];
     const longitude = coordinate[1];
 
-    console.log(latitude)
-    console.log(longitude)
-    
-
     const users = await UserModel.aggregate([
       {
         $geoNear: {
