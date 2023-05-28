@@ -1,63 +1,47 @@
-import UserModel from "@models/user";
-
-interface MinAndMaxPreference {
-  min: number;
-  max: number;
-}
-
+import UserModel, { IUser } from "@models/user";
 interface IRequest {
-  coordinate: number[];
-  sex: string;
-  sexPreference: string;
-  settings: {
-    agePreference: MinAndMaxPreference;
-    distancePreference: MinAndMaxPreference;
-  };
+  latitude: string;
+  longitude: string;
+  id: string;
 }
-
-
 export class FindUsersUseCase {
-  async execute({
-    coordinate,
-    sex,
-    sexPreference,
-    settings,
-  }: IRequest): Promise<any> {
-    const { min: minAge, max: maxAge } = settings.agePreference;
-    const { min: minDistance, max: maxDistance } = settings.distancePreference;
-    const latitude = coordinate[0];
-    const longitude = coordinate[1];
+  async execute({ latitude, longitude, id }: IRequest): Promise<any> {
+    const user: IUser = await UserModel.findById(id);
 
     const users = await UserModel.aggregate([
       {
         $geoNear: {
           near: {
-            type: 'Point',
-            coordinates: [latitude, longitude]
+            type: "Point",
+            coordinates: [parseFloat(longitude), parseFloat(latitude)],
           },
-          distanceField: 'distance',
-          maxDistance: maxDistance * 1000,
-          minDistance: minDistance * 1000,
-          spherical: true
-        }
+          distanceField: "distance",
+          maxDistance: user.settings.distancePreference.max * 1000,
+          minDistance: user.settings.distancePreference.min * 1000,
+          spherical: true,
+        },
       },
       {
         $match: {
-          age: { $gte: minAge, $lte: maxAge },
-          sex: sexPreference,
-          sexPreference: sex, 
-        }
+          age: {
+            $gte: user.settings.agePreference.min,
+            $lte: user.settings.agePreference.max,
+          },
+          sex: user.sexPreference,
+          sexPreference: user.sex,
+        },
       },
-      {
-        $project: {
-          name: 1,
-          distance: 1,
-          age: 1,
-          photoProfile: 1
-        }
-      }
+      { $limit: 20 },
     ]);
 
-    return users;
+    const likeds = await UserModel.aggregate([
+      { $match: { _id: { $in: user.likeds } } },
+      { $limit: 20 },
+    ])
+
+    return {
+      match: users,
+      liked: likeds
+    };
   }
-};
+}

@@ -16,7 +16,7 @@ const uploadImageUrlUserController = new UploadImageUrlUserController();
 
 usersRoutes.post('/create', createUserController.handle);
 usersRoutes.get('/me', profileUserUseCase.handle);
-usersRoutes.post('/search', findUsersController.handle);
+usersRoutes.get('/search', findUsersController.handle);
 usersRoutes.get('/otp', oTPUserController.handle);
 usersRoutes.post('/imageurl', uploadImageUrlUserController.handle);
 

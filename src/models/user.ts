@@ -15,6 +15,7 @@ export interface IUser {
   googleId: string;
 
   name: string;
+  description: string;
   username: string;
   photoProfile: [string],
   location: {
@@ -43,6 +44,7 @@ const userSchema = new Schema<IUser>({
   googleId: { type: String },
   
   name: { type: String, required: true },
+  description: { type: String, default: "Hello, I'm new here" },
   username: { type: String },
   sex: { type: String, required: true },
   sexPreference: { type: String, required: true },

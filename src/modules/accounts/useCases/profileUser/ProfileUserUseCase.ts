@@ -15,6 +15,7 @@ interface IResponse {
   dateBirth: string;
   age: number;
   name: string;
+  description: string;
   photoProfile: [string],
   location: Object;
   sex: string;
@@ -38,6 +39,7 @@ class ProfileUserUseCase {
    ) { }
 
    async execute({ id }: IRequest): Promise<IResponse> {
+      console.log(id);
       const user = await UserModal.findById(id);
       if (!user) throw new AppError("user does not exist", 404);
 
@@ -49,6 +51,7 @@ class ProfileUserUseCase {
       
       const resultUser: IResponse = {
         name: user.name,
+        description: user.description,
         email: user.email,
         cellphone: user.cellphone,
         dateBirth: user.dateBirth,
