@@ -2,13 +2,14 @@ import 'reflect-metadata';
 import 'express-async-errors';
 
 import '@shared/container';
-
+import http from "http";
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 
 import { router } from './routes';
 import { AppError } from '@shared/errors/AppError';
+import { Server } from 'socket.io';
 
 const app = express();
 app.use(express.json());
@@ -39,4 +40,7 @@ app.use(
   }
 );
 
-export { app };
+const serverHttp = http.createServer(app);
+const io = new Server(serverHttp);
+
+export { serverHttp, io};
