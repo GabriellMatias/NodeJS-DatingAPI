@@ -1,4 +1,7 @@
-import { io } from "./app";
+import { MessageMatch } from "@models/match";
+import { SaveMatchUseCase } from "@modules/match/useCases/save/SaveMatchUseCase";
+import { io } from "@shared/infra/http/app";
+import { container } from "tsyringe";
 
 interface IRoomUser {
   socket_id: string;
@@ -6,16 +9,9 @@ interface IRoomUser {
   room: string;
 }
 
-interface Message {
-  room: string;
-  text: string;
-  username: string;
-  createdAt: Date;
-}
-
 const users: IRoomUser[] = [];
 
-const messages: Message[] = [];
+const messages: MessageMatch[] = [];
 
 const getMessagesRoom = (room: string) => {
   const messagesRoom = messages.filter((message) => message.room === room);
@@ -25,7 +21,9 @@ const getMessagesRoom = (room: string) => {
 
 io.on("connection", (socket) => {
   console.log("***Connection***");
-  console.log(socket.id);
+  console.log('Socket connected:', socket.id);
+  
+  
   socket.on("select_room", (data, callback) => {
     console.log("***select_room***");
     console.log(data);
@@ -52,8 +50,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("message", ({ room, text, username }) => {
+    console.log("***message***");
+    console.log(text);
     // Salvar mensagens
-    const message: Message = {
+    const message: MessageMatch = {
       room,
       text,
       username,
@@ -64,5 +64,24 @@ io.on("connection", (socket) => {
 
     // Enviar para os usuarios da sala especifica
     io.to(room).emit("message", message);
+  });
+
+  socket.on("disconnect", async () => {
+    console.log("***Disconnect***");
+    console.log('Socket disconnected:', socket.id);
+    // Remova o usuário da lista de usuários quando eles se desconectarem
+    const index = users.findIndex((user) => user.socket_id === socket.id);
+    if (index !== -1) {
+      const disconnectedUser = users.splice(index, 1)[0];
+      //console.log('Disconnected user:', disconnectedUser);
+      const mensagemRoom = getMessagesRoom(disconnectedUser.room);
+
+      //console.log('Mensagens:\n',mensagemRoom);
+      if(mensagemRoom.length > 0) {
+        const matchController = container.resolve(SaveMatchUseCase);
+
+        await matchController.execute(disconnectedUser.room, mensagemRoom);
+      }
+    }
   });
 });

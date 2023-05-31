@@ -31,13 +31,22 @@ export class MatchUseCase {
 
     for (const likedId of likeds) {
       const likedUser = await UserModel.findById(likedId);
+      const likedUserId = likedUser._id.toString();
 
       if (likedUser) {
         // Verifica se a pessoa que recebeu o like também deu like ou superlike
         if (likedUser.likeds.includes(user_id) || likedUser.superlikeds.includes(user_id)) {
           const match: IMatch = {
-            user1: user_id,
-            user2: likedId,
+            user1: {
+              id: user._id.toString(),
+              name: user.name,
+              photoProfile: user.photoProfile,
+            },
+            user2: {
+              id: likedUserId,
+              name: likedUser.name,
+              photoProfile: likedUser.photoProfile,
+            },
             matchType: EMatchType.like,
             user1Like: true,
             user2Like: likedUser.likeds.includes(user_id),
@@ -62,7 +71,6 @@ export class MatchUseCase {
     user.likeds = likeds;
     user.superlikeds = superlikeds;
     user.dislikeds = dislikeds;
-
     await user.save();
 
     // Salva os matches no banco de dados

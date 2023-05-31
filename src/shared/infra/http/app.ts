@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 import 'express-async-errors';
-
 import '@shared/container';
 import http from "http";
 import express from 'express';
@@ -43,4 +42,6 @@ app.use(
 const serverHttp = http.createServer(app);
 const io = new Server(serverHttp);
 
-export { serverHttp, io};
+import "../../../modules/chat/socket";
+
+export { serverHttp, io}; 

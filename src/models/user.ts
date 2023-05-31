@@ -31,7 +31,6 @@ export interface IUser {
   likeds: [Schema.Types.ObjectId],
   dislikeds: [Schema.Types.ObjectId],
   superlikeds: [Schema.Types.ObjectId],
-  matches: [Schema.Types.ObjectId],
 }
 
 const userSchema = new Schema<IUser>({
@@ -73,7 +72,6 @@ const userSchema = new Schema<IUser>({
   likeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
   dislikeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
   superlikeds: [{ type: Schema.Types.ObjectId, ref: "User" }],
-  matches: [{ type: Schema.Types.ObjectId, ref: "User" }],
 }, {
   timestamps: true,
 });
