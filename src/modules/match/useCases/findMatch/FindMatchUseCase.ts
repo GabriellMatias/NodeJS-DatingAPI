@@ -2,7 +2,6 @@ import { AppError } from "@shared/errors/AppError";
 import UserModel from "@models/user";
 import MatchModel, { EMatchType, IMatch } from "@models/match";
 import { ObjectId } from "mongoose";
-import { SaveMatchUseCase } from "../save/SaveMatchUseCase";
 
 interface IRequest {
   id: string;

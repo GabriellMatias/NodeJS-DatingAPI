@@ -3,33 +3,30 @@ import MatchModel, { IMatch } from "@models/match";
 
 interface IRequest {
   id: string;
-  minMensagem: string;
-  maxMensagem: string;
+  lastMessagemId: string;
+  fristMensagemId: string;
 }
 
 export class FindMatchTextUseCase {
-  async execute({ id, minMensagem, maxMensagem }: IRequest): Promise<any> {
-    const matches = MatchModel.findById(
-      id,
-      {
-        unwind: "$menssagens",
-        menssagens: {
-          $slice: [parseInt(minMensagem), parseInt(maxMensagem)],
-        },
-      },
-      {
-        sort: {
-          "menssagens.updatedAt": -1,
-        },
-        skip: parseInt(minMensagem),
-        limit: parseInt(maxMensagem),
-      }
-    );
+  async execute({ id ,fristMensagemId, lastMessagemId }: IRequest): Promise<any> {
+    const matches:IMatch = await MatchModel.findById(id);
 
-    if (!matches) {
-      throw new AppError("User not found Match", 404);
+    //a partir da ultima mensagem
+    if (lastMessagemId) {
+      const lastMessagem = matches.menssagens.find((messagem) => messagem.text.id == lastMessagemId);
+      const index = matches.menssagens.indexOf(lastMessagem);
+      const menssagens = matches.menssagens.slice(index + 1, index + 11);
+      return menssagens;
     }
 
-    return matches;
+    //a partir da primeira mensagem
+    if (fristMensagemId) {
+      const fristMessagem = matches.menssagens.find((messagem) => messagem.text.id == fristMensagemId);
+      const index = matches.menssagens.indexOf(fristMessagem);
+      const menssagens = matches.menssagens.slice(index - 10, index);
+      return menssagens;
+    }
+
+    return matches.menssagens;
   }
 }

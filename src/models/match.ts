@@ -11,19 +11,17 @@ export enum EMessageType {
 }
 
 export enum EMessageStatus {
-  delivered = "DELIVERED",
-  error = "ERROR",
-  seen = "SEEN",
-  sending = "SENDING",
+  prepare = "PREPARE",
   sent = "SENT",
 }
 
 export interface UserMatch {
   id: string;
   name: string;
+  description: string;
+  age: number;
   photoProfile: [string];
 }
-
 
 export interface MessageText {
   author: {
@@ -40,6 +38,7 @@ export interface MessageMatch {
   text: MessageText;
   username: string;
   createdAt: Date;
+  status: EMessageStatus;
 }
 
 export interface IMatch {
@@ -61,6 +60,8 @@ const matchSchema = new Schema<IMatch>(
       type: {
         id: String,
         name: String,
+        description: String,
+        age: Number,
         photoProfile: [String],
       },
       ref: "User",
@@ -70,6 +71,8 @@ const matchSchema = new Schema<IMatch>(
       type: {
         id: String,
         name: String,
+        description: String,
+        age: Number,
         photoProfile: [String],
       },
       ref: "User",
