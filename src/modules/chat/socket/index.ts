@@ -1,7 +1,7 @@
-import { MessageMatch } from "@models/match";
-import { SaveMatchUseCase } from "@modules/match/useCases/save/SaveMatchUseCase";
+import { EMessageStatus, MessageMatch } from "@models/match";
 import { io } from "@shared/infra/http/app";
 import { container } from "tsyringe";
+import { SaveChatUseCase } from "../chat/SaveMatchUseCase";
 
 interface IRoomUser {
   socket_id: string;
@@ -11,20 +11,19 @@ interface IRoomUser {
 
 const users: IRoomUser[] = [];
 
-const messages: MessageMatch[] = [];
-
-const getMessagesRoom = (room: string) => {
-  const messagesRoom = messages.filter((message) => message.room === room);
-
-  return messagesRoom;
+const saveMessagesRoom = async (room: string, msg: MessageMatch) => {
+  if (msg.status == EMessageStatus.prepare) {
+    msg.status = EMessageStatus.sent;
+    const matchController = container.resolve(SaveChatUseCase);
+    await matchController.execute(room, msg);
+  }
 };
 
 io.on("connection", (socket) => {
   console.log("***Connection***");
-  console.log('Socket connected:', socket.id);
-  
-  
-  socket.on("select_room", (data, callback) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("select_room", (data) => {
     console.log("***select_room***");
     console.log(data);
     // Colocar o usuario em alguma sala em especifica na conexão de socket
@@ -43,10 +42,6 @@ io.on("connection", (socket) => {
         socket_id: socket.id,
       });
     }
-
-    const messagesRoom = getMessagesRoom(data.room);
-
-    callback(messagesRoom);
   });
 
   socket.on("message", ({ room, text, username }) => {
@@ -58,30 +53,38 @@ io.on("connection", (socket) => {
       text,
       username,
       createdAt: new Date(),
+      status: EMessageStatus.prepare,
     };
-
-    messages.push(message);
+    console.log("***ADD MSG ${message.text}***");
+    saveMessagesRoom(room, message);
 
     // Enviar para os usuarios da sala especifica
-    io.to(room).emit("message", message);
+    io.to(room).emit("message", true);
   });
 
   socket.on("disconnect", async () => {
-    console.log("***Disconnect***");
-    console.log('Socket disconnected:', socket.id);
-    // Remova o usuário da lista de usuários quando eles se desconectarem
-    const index = users.findIndex((user) => user.socket_id === socket.id);
-    if (index !== -1) {
-      const disconnectedUser = users.splice(index, 1)[0];
-      //console.log('Disconnected user:', disconnectedUser);
-      const mensagemRoom = getMessagesRoom(disconnectedUser.room);
-
-      //console.log('Mensagens:\n',mensagemRoom);
-      if(mensagemRoom.length > 0) {
-        const matchController = container.resolve(SaveMatchUseCase);
-
-        await matchController.execute(disconnectedUser.room, mensagemRoom);
-      }
-    }
+    console.log("Socket disconnected:", socket.id);
+    // const index = users.findIndex((user) => user.socket_id === socket.id);
+    // if (index !== -1) {
+    //   const disconnectedUser = users.splice(index, 1)[0];
+    //   //console.log('Disconnected user:', disconnectedUser);
+    //   const messagesRoom = messages.filter(
+    //     (message) =>
+    //       message.room === disconnectedUser.room &&
+    //       message.status === EMessageStatus.prepare
+    //   );
+    //   //console.log('Mensagens:\n',mensagemRoom);
+    //   if (messagesRoom.length > 0) {
+    //     const matchController = container.resolve(SaveMatchUseCase);
+    //     await matchController
+    //       .execute(disconnectedUser.room, messagesRoom)
+    //       .then(() => {
+    //         //set messagesRoom to status sent
+    //         messagesRoom.forEach((message) => {
+    //           message.status = EMessageStatus.sent;
+    //         });
+    //       });
+    //   }
+    // }
   });
 });
