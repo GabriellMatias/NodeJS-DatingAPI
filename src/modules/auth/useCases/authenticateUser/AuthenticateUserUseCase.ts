@@ -8,8 +8,27 @@ interface IRequest {
   cellphone: string;
 }
 
+interface MinAndMaxPreference {
+  min: number;
+  max: number;
+}
+
 interface IResponse {
-  id: string;
+  _id: string;
+  email: string;
+  cellphone: string;
+  dateBirth: string;
+  age: number;
+  name: string;
+  description: string;
+  photoProfile: [string],
+  location: Object;
+  sex: string;
+  sexPreference: string;
+  settings: {
+    agePreference: MinAndMaxPreference;
+    distancePreference: MinAndMaxPreference;
+  };
 }
 
 class AuthenticateUserUseCase {
@@ -20,11 +39,24 @@ class AuthenticateUserUseCase {
 
       if (!user) throw new AppError("user doesn't exist", 404);
 
-      const userR: IResponse = {
-        id: user._id.toString(),
+      const resultUser: IResponse = {
+        _id: user.id,
+        name: user.name,
+        description: user.description,
+        email: user.email,
+        cellphone: user.cellphone,
+        dateBirth: user.dateBirth,
+        age: user.age,
+        photoProfile: user.photoProfile,
+        location: user.location,
+        sex: user.sex,
+        sexPreference: user.sexPreference,
+        settings: {
+          agePreference: user.settings.agePreference,
+          distancePreference: user.settings.distancePreference,
+        },
       }
-
-      return userR
+      return resultUser;
    }
 }
 

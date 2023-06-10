@@ -5,22 +5,11 @@ import { ObjectId } from "mongoose";
 
 interface IRequest {
   user_id: ObjectId;
-  likeds: [ObjectId];
-  dislikeds: [ObjectId];
-  superlikeds: [ObjectId];
-}
-
-interface IResponse {
-  matches: IMatch[];
+  liked: ObjectId;
 }
 
 export class MatchUseCase {
-  async execute({
-    user_id,
-    likeds,
-    dislikeds,
-    superlikeds,
-  }: IRequest): Promise<IResponse> {
+  async execute({ user_id, liked }: IRequest): Promise<any> {
     const user = await UserModel.findById(user_id);
 
     if (!user) {
@@ -29,61 +18,50 @@ export class MatchUseCase {
 
     const matches: IMatch[] = [];
 
-    for (const likedId of likeds) {
-      const likedUser = await UserModel.findById(likedId);
+    const likedUser = await UserModel.findById(liked);
+
+    if (likedUser) {
       const likedUserId = likedUser._id.toString();
+      // Verifica se a pessoa que recebeu o like também deu like ou superlike
+      if (
+        likedUser.likeds.includes(user_id)) {
+        const match: IMatch = {
+          user1: {
+            id: user._id.toString(),
+            name: user.name,
+            photoProfile: user.photoProfile,
+            description: user.description,
+            age: user.age,
+          },
+          user2: {
+            id: likedUserId,
+            name: likedUser.name,
+            photoProfile: likedUser.photoProfile,
+            description: user.description,
+            age: user.age,
+          },
+          matchType: EMatchType.like,
+          user1Like: true,
+          user2Like: likedUser.likeds.includes(user_id),
+          date: new Date(),
+          match: true,
+        };
 
-      if (likedUser) {
-        // Verifica se a pessoa que recebeu o like também deu like ou superlike
-        if (likedUser.likeds.includes(user_id) || likedUser.superlikeds.includes(user_id)) {
-          const match: IMatch = {
-            user1: {
-              id: user._id.toString(),
-              name: user.name,
-              photoProfile: user.photoProfile,
-              description: user.description,
-              age: user.age,
-            },
-            user2: {
-              id: likedUserId,
-              name: likedUser.name,
-              photoProfile: likedUser.photoProfile,
-              description: user.description,
-              age: user.age,
-            },
-            matchType: EMatchType.like,
-            user1Like: true,
-            user2Like: likedUser.likeds.includes(user_id),
-            user1SuperLike: false,
-            user2SuperLike: false,
-            date: new Date(),
-            match: true,
-          };
-
-          if (likedUser.superlikeds.includes(user_id)) {
-            match.matchType = EMatchType.superLike,
-            match.user1SuperLike = true;
-            match.user2SuperLike = true;
-          }
-
-          matches.push(match);
-        }
+        matches.push(match);
       }
+
+      // Adicionar o liked na lista
+      user.likeds.push(liked);
+
+      await user.save();
+
+      await MatchModel.create(matches);
+
+      return {
+        match: matches,
+      };
+    } else {
+      return {}
     }
-
-    // Atualiza os likes, superlikes e deslikes do usuário
-    user.likeds = likeds;
-    user.superlikeds = superlikeds;
-    user.dislikeds = dislikeds;
-    await user.save();
-
-    // Salva os matches no banco de dados
-    
-    // Verifica se a conta possui usuario, se não cria um
-    await MatchModel.create(matches);
-
-    return {
-      matches: matches,
-    };
   }
 }

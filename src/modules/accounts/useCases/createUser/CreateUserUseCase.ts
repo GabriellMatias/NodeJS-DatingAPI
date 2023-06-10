@@ -22,6 +22,7 @@ interface IRequest {
     coordinates: [number, number];
   };
   sex: string;
+  photoProfile: [string];
   sexPreference: string;
   settings: {
     agePreference: MinAndMaxPreference;
@@ -54,6 +55,7 @@ class CreateUserUseCase {
     location,
     settings,
     sex,
+    photoProfile,
     sexPreference,
   }: IRequest): Promise<IResponse> {
     const user = await UserModel.findOne({ email });
@@ -71,6 +73,7 @@ class CreateUserUseCase {
       sex,
       sexPreference,
       settings,
+      photoProfile,
     });
 
     const token = sign({}, secret_token, { expiresIn: expires_in_token });

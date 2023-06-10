@@ -49,8 +49,6 @@ export interface IMatch {
   matchType: EMatchType;
   user1Like: boolean;
   user2Like: boolean;
-  user1SuperLike: boolean;
-  user2SuperLike: boolean;
   menssagens?: MessageMatch[];
 }
 
@@ -83,8 +81,6 @@ const matchSchema = new Schema<IMatch>(
     matchType: { type: String, enum: ["LIKE", "SUPERLIKE"], required: true },
     user1Like: { type: Boolean, default: false },
     user2Like: { type: Boolean, default: false },
-    user1SuperLike: { type: Boolean, default: false },
-    user2SuperLike: { type: Boolean, default: false },
     menssagens: {
       type: [Object],
       default: [],

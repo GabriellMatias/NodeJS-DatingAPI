@@ -23,6 +23,8 @@ export class FindUsersUseCase {
       },
       {
         $match: {
+          _id: { $nin: user.likeds },
+          "liked._id": { $nin: [id] },
           age: {
             $gte: user.settings.agePreference.min,
             $lte: user.settings.agePreference.max,

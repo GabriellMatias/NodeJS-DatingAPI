@@ -43,5 +43,6 @@ const serverHttp = http.createServer(app);
 const io = new Server(serverHttp);
 
 import "../../../modules/chat/socket";
+import "../../../modules/match/socket";
 
 export { serverHttp, io}; 

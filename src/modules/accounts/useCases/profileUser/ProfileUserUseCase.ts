@@ -10,6 +10,7 @@ interface MinAndMaxPreference {
 }
 
 interface IResponse {
+  _id: string;
   email: string;
   cellphone: string;
   dateBirth: string;
@@ -50,6 +51,7 @@ class ProfileUserUseCase {
       }
       
       const resultUser: IResponse = {
+        _id: user.id,
         name: user.name,
         description: user.description,
         email: user.email,

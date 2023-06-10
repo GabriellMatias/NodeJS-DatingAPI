@@ -20,7 +20,7 @@ const saveMessagesRoom = async (room: string, msg: MessageMatch) => {
 };
 
 io.on("connection", (socket) => {
-  console.log("***Connection***");
+  console.log("***Connection Chat***");
   console.log("Socket connected:", socket.id);
 
   socket.on("select_room", (data) => {
@@ -63,28 +63,10 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", async () => {
-    console.log("Socket disconnected:", socket.id);
-    // const index = users.findIndex((user) => user.socket_id === socket.id);
-    // if (index !== -1) {
-    //   const disconnectedUser = users.splice(index, 1)[0];
-    //   //console.log('Disconnected user:', disconnectedUser);
-    //   const messagesRoom = messages.filter(
-    //     (message) =>
-    //       message.room === disconnectedUser.room &&
-    //       message.status === EMessageStatus.prepare
-    //   );
-    //   //console.log('Mensagens:\n',mensagemRoom);
-    //   if (messagesRoom.length > 0) {
-    //     const matchController = container.resolve(SaveMatchUseCase);
-    //     await matchController
-    //       .execute(disconnectedUser.room, messagesRoom)
-    //       .then(() => {
-    //         //set messagesRoom to status sent
-    //         messagesRoom.forEach((message) => {
-    //           message.status = EMessageStatus.sent;
-    //         });
-    //       });
-    //   }
-    // }
+    console.log("[CHAT] Socket disconnected:", socket.id);
+    const index = users.findIndex((user) => user.socket_id === socket.id);
+    if (index !== -1) {
+      users.splice(index, 1)[0];
+    }
   });
 });
