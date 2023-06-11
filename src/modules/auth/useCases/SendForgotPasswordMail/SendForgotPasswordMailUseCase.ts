@@ -37,7 +37,7 @@ class SendForgotPasswordMailUseCase {
 
     const variables = {
       name: user.name,
-      link: `https://client-mcibiotec.vercel.app/resetpassword/${token}`,
+      link: `<LINK>${token}`,
     };
 
     await UserModel.findOne({ email }).updateOne({

@@ -13,8 +13,8 @@ class EtherealMailProvider implements IMailProvider {
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "mcibiotec@gmail.com",
-        pass: "gvgkmvuojsmvltpv",
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
       },
       port: 465,
       secure: true,
@@ -38,7 +38,7 @@ class EtherealMailProvider implements IMailProvider {
 
     await this.client.sendMail({
       to,
-      from: "MCIBioTec <mcibiotec@gmail.com>",
+      from: process.env.EMAIL_USER,
       subject,
       html: templateHTML,
     }).then((message)=> {

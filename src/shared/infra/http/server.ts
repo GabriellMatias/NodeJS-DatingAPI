@@ -2,8 +2,7 @@ import mongoose from "mongoose";
 import { serverHttp } from "./app";
 
 const port = 5000;
-const mongo_url =
-  "mongodb+srv://gabrielarthur2:ESWP56qudY2RoHQx@prod.62ftuud.mongodb.net/?retryWrites=true&w=majority";
+const mongo_url = process.env.MONGO_URL;
 
 mongoose
   .connect(mongo_url)

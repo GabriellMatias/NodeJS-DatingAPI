@@ -13,8 +13,8 @@ interface IResponse {
   sid: number;
 }
 
-const accountSid = 'ACd7ee477899295d7d494795fd4e7217c7';
-const authToken = 'a1d77a9297953f882416c270beb96db4';
+const accountSid = process.env.TWILIO_ACCOUNT
+const authToken = process.env.TWILIO_TOKEN
 const client = twilio(accountSid, authToken);
 
 class OTPUserUseCase {
